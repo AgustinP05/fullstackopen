@@ -9,7 +9,7 @@
     "start": "cross-env NODE_ENV=production next start",
     "lint": "next lint",
     "test": "cross-env NODE_ENV=test jest --verbose --silent",
-    "test:watch": "npm run test -- --watch"
+    "test:watch": "npm run test -- --watchAll"
   },
   "dependencies": {
     "axios": "1.6.2",

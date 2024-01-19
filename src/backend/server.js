@@ -33,7 +33,7 @@ app.use(notFound)
 app.use(handleError)
 
 /// configuracion de puerto //El servidor funcionará en el peurto 3001 mientras que el front funciona en el 3000
-const PORT = process.env.PORT
+const PORT = process.env.PORT || 3001
 
 const server = app.listen(PORT, () => { // el app.listen devuelve el servidor que se ha creado
   console.log(`Server running on port ${PORT}`)

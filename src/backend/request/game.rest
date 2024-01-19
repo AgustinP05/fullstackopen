@@ -3,10 +3,10 @@ POST  http://localhost:3001/games HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "Guardians of the galaxy",
+    "name": "Returnal",
     "price":45,
     "platform":["PC",
-    "PS5","XBOX"]
+    "PS5"]
 }
 
 

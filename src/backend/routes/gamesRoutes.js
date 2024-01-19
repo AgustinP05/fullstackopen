@@ -7,12 +7,16 @@ const appGames = express() // Iniciamos la aplicacion express
 // Modelos de las colecciones de la db
 const Game = require('../models/Game.js')// Llamamos el modelo 'games' que vamos a usar manipular// Dentro de Game estará el objeto que contiene la coleccion 'games'
 
+const ValidationError = require('../middlewares/customErrors/ValidationError.js')
 //
 // Cuando se haga un GET en la ruta '/games' Busca todos los juegos de la lista
-appGames.get('/', (req, res, next) => {
-  Game.find({}).then((games) => {
-    res.json(games)
-  }).catch(err => next(err))
+appGames.get('/', async (req, res, next) => {
+  // Game.find({}).then((games) => {
+  //   res.json(games)
+  // }).catch(err => next(err))
+
+  const games = await Game.find({}) // espera a que resuelva y devuelve la promesa
+  res.json(games)
 })
 
 // Cuando se haga un GET en la ruta '/games', le podemos pasar un id}
@@ -59,20 +63,28 @@ appGames.put('/:id', (req, res, next) => {
 })
 
 // Para borrar un objeto de la lista
-appGames.delete('/:id', (req, res, next) => {
+appGames.delete('/:id', async (req, res, next) => {
   const { id } = req.params // Aquí tomamos el texto _id de la url
   console.log(id)
 
-  Game.findByIdAndDelete(id)
-    .then((deletedGame) => {
-      res.status(204).end() // Enviamos 204 (No Content) porque el recurso se eliminó con éxito
-    })
-    .catch((err) => {
-      next(err)
-    })
+  // Game.findByIdAndDelete(id)
+  //   .then((deletedGame) => {
+  //     res.status(204).end() // Enviamos 204 (No Content) porque el recurso se eliminó con éxito
+  //   })
+  //   .catch((err) => {
+  //     next(err)
+  //   })
+
+  try {
+    await Game.findByIdAndDelete(id)
+    res.status(204).end() // Enviamos 204 (No Content) porque el recurso se eliminó con éxito
+  } catch (err) {
+    next(err)
+  }
 })
 
-appGames.post('/', (req, res, next) => {
+// Para agregar un objeto a la lista
+appGames.post('/', async (req, res, next) => {
   const game = req.body // Aquí tomamos el texto del rest
   const PLATFORMliststring = process.env.PLATFORM // los dotenv vienen en string
   const PLATFORMlistsarray = JSON.parse(PLATFORMliststring)// pasamos la lista de string a array
@@ -83,28 +95,41 @@ appGames.post('/', (req, res, next) => {
     platform: game.platform
   })
 
-  if (newGame.platform.every(platform => PLATFORMlistsarray.includes(platform))) { // Verificamos si las plataformas asignadas son correctas
-    // // Guardamos el objeto en la bd
-    newGame.save()
-      . then(savedGame => {
-        console.log(savedGame)
-        res.json(savedGame).end()
-        // mongoose.connection.close()
-      })
-      . catch(err => {
-        next(err)
-      })
-  } else {
-    res.status(400).json({
-      error: 'platform used is malformed'
-    }).end()
+  // // Guardamos el objeto en la bd
+  // newGame.save()
+  //   . then(savedGame => {
+  //     console.log(savedGame)
+  //     res.status(201)
+  //       .json(savedGame).end()
+  //     // mongoose.connection.close()
+  //   })
+  //   . catch(err => {
+  //     next(err)
+  //   })
+
+  // Mostrandolo asincrono
+  try {
+    if (!newGame.name) {
+      throw new ValidationError('Name is required')
+    }
+
+    if (!game.platform || game.platform.length === 0) {
+      throw new ValidationError('At least one patform is required')
+    }
+    if (newGame.platform.every(platform => PLATFORMlistsarray.includes(platform)) === false) { // Verificamos si las plataformas asignadas son correctas
+      throw new ValidationError('Platform used is malformed')
+    }
+
+    const savedGame = await newGame.save()// Espera a que se resuelva y nos devuelve la promesa que guardaremos como savedNote
+    res.status(201)
+    res.json(savedGame).end()
+  } catch (err) {
+    next(err)
   }
 
   // games = [...games, newGame] // Agregamos el nuevo juego a la lista //Para listas locales
 
   console.log(newGame)
-
-  res.status(201).json(newGame) // Recordar que es .json porque es un objeto//Enviamos el nuevo objeto como json
 })
 
 module.exports = appGames

@@ -1,36 +1,60 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+Este proyecto es un ecommerce con tematica de videojuegos.
+Es creado utilizando Next.js, Tailwind, Node, base de datos MongoDB con express, ademas de mongoose.
 
-## Getting Started
+Next.js (React) para crear toda la pagina, tanto las vistas como el enrutamiento
 
-First, run the development server:
+Tailwind para los estilos
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Base de datos MongoDB para almacenar los productos.
+Express es un framework de node para crear el servidor (en backend).
+Mongoose es una libreria que sirve para configurar la conexion con la bd
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Para el arcvhico .env hay que instalar npm install dotenv. Lo importamos y activamos con require('dotenv').config()
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Axios para conectar la base de datos (en frontend)
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+middlewares interceptan la peticion que pasa por la API para que sea mas seguro. Cors permite recibir solicitudes de un dominio diferente al de la pagina cargada . Usamos cors gracias a npm install cors -E
 
-## Learn More
+Vamos a usar Jest para tests unitarios (evaluan una cosa en concreto). Lo instalamos con npm install jest -D porque es una dependencia de desarrollo. Recordar que Jest esta pensado para trabajar por defecto en el lado del cliente, y yo lo quiero usar en node, entonces hay que aclararlo en las dependencias con
 
-To learn more about Next.js, take a look at the following resources:
+"jest":{
+    "testEnvironment":"node"
+  }
+Ademas, Eslint se va a quejar porque no reconoce las funciones de jest. Por lo tanto tenemos que agregar en el eslintCongif de package.json lo el env jest true como muestro aquí
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+"eslintConfig": {
+    "extends": "./node_modules/standard/eslintrc.json",
+    "env":{
+      "jest": true
+    }
+  }
+Tambien en el package.json he agregado el escript test para jest
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+"test":"jest --verbose --silent --detectOpenHandles" así se puede hacer npm run test para testear. El verbose es para que me explique varias cosas. El silent para que no me muestre los console log de las cosas que quiero testear. eldetectOpenHandles es para ver las conecciones que quedaron abiertas al finalizar el test y este ultimo se puede borrar luego de probar una vez que las conecciones se cierren.
 
-## Deploy on Vercel
+Para usar variables de entorno en windows hay que intalar npm install cross-env y modificar lo siguiente en package.json.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+"scripts": {
+    "dev": "cross-env NODE_ENV=development next dev",
+    "build": "next build",
+    "start": "cross-env NODE_ENV=production next start",
+    "lint": "next lint",
+    "test": "cross-env NODE_ENV=test jest --verbose --silent --detectOpenHandles"
+  }
+Para hacer test de integracion (testean mas de una funcion) para testear los endpoints del servidor, vamos a usar el npm install supertest -D
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+El proyecto se inicia gracias al npm run dev. El backend se inicia gracias al node src\backend\server.js que lo he modificado para usar npm run server.
+
+"server":"cross-env NODE_ENV=development node src/backend/server.js"
+
+‌
+
+Podemos hacer un script para testear que se mantenga verificando cada vez que guardamos para evitar hacer npm run test a cada rato.
+
+"test:watch": "cross-env NODE_ENV=test jest --verbose --silent --watch"
+
+o tambien resumido "test:watch": "npm run test -- --watch"
+
+y correrlo con npm run test:watch
+
+Para encriptar la contraseña del usuario voy a usar el npm install bcrypt

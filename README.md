@@ -1,4 +1,4 @@
-Este proyecto es un ecommerce con tematica de videojuegos.
+Ejercitacion de los contenidos de fullstackopen.
 Es creado utilizando Next.js, Tailwind, Node, base de datos MongoDB con express, ademas de mongoose.
 
 Next.js (React) para crear toda la pagina, tanto las vistas como el enrutamiento
